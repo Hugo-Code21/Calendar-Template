@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="id">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f3ed">
+	<title>Kalender Indonesia 2026</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<main class="app-shell">
+		<header class="topbar">
+			<a class="brand" href="#" aria-label="Kalender Indonesia 2026">
+				<span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+				<span>hari<span class="brand-dot">.</span></span>
+			</a>
+			<div class="topbar-note"><span class="status-dot"></span> Kalender Indonesia <span class="year-label">2026</span></div>
+			<button class="add-event-button" id="open-event-form" type="button"><span aria-hidden="true">+</span> Buat acara</button>
+		</header>
+
+		<section class="calendar-layout" aria-label="Kalender tahun 2026">
+			<section class="calendar-panel" aria-label="Tampilan kalender">
+				<div class="month-heading">
+					<div>
+						<p class="eyebrow">TAHUN KALENDER</p>
+						<h1 id="month-title">Januari <span>2026</span></h1>
+					</div>
+					<div class="month-controls">
+						<button class="icon-button" id="previous-month" type="button" aria-label="Bulan sebelumnya" title="Bulan sebelumnya">‹</button>
+						<button class="today-button" id="today-button" type="button">Hari ini</button>
+						<button class="icon-button" id="next-month" type="button" aria-label="Bulan berikutnya" title="Bulan berikutnya">›</button>
+					</div>
+				</div>
+				<div class="calendar-grid" id="calendar-grid" role="grid" aria-label="Hari dalam bulan"></div>
+				<div class="calendar-legend"><span class="legend-dot"></span> Ada acara <span class="legend-selected"></span> Tanggal dipilih</div>
+			</section>
+
+			<aside class="agenda-panel" aria-labelledby="agenda-title">
+				<div class="agenda-topline"><span class="eyebrow">AGENDA HARIAN</span><span class="agenda-count" id="event-count">0 acara</span></div>
+				<h2 id="agenda-title">Kamis,<br>1 Januari</h2>
+				<p class="agenda-year">Kamis, 1 Januari 2026</p>
+				<div class="agenda-rule"></div>
+				<div class="event-list" id="event-list" aria-live="polite"></div>
+				<button class="text-add-button" id="open-event-form-secondary" type="button"><span aria-hidden="true">+</span> Tambahkan acara</button>
+				<div class="agenda-footer"><span>INDONESIA</span><span>WAKTU LOKAL</span></div>
+			</aside>
+		</section>
+		<footer class="page-footer"><span>Hari-hari penting, tersusun rapi.</span><span>2026 <span class="footer-sun" aria-hidden="true">✳</span></span></footer>
+	</main>
+
+	<dialog class="event-dialog" id="event-dialog" aria-labelledby="dialog-title">
+		<form id="event-form">
+			<div class="dialog-heading">
+				<div><p class="eyebrow">AGENDA BARU</p><h2 id="dialog-title">Buat acara</h2></div>
+				<button class="icon-button close-button" id="close-dialog" type="button" aria-label="Tutup">×</button>
+			</div>
+			<label for="event-title">Nama acara</label>
+			<input id="event-title" name="title" type="text" maxlength="70" placeholder="Contoh: Makan siang keluarga" required>
+			<div class="form-row">
+				<div><label for="event-date">Tanggal</label><input id="event-date" name="date" type="date" min="2026-01-01" max="2026-12-31" required></div>
+				<div><label for="event-time">Waktu</label><input id="event-time" name="time" type="time"></div>
+			</div>
+			<label for="event-category">Kategori</label>
+			<select id="event-category" name="category">
+				<option value="personal">Pribadi</option>
+				<option value="national">Nasional</option>
+				<option value="family">Keluarga</option>
+				<option value="work">Pekerjaan</option>
+			</select>
+			<label for="event-note">Catatan <span class="optional">(opsional)</span></label>
+			<textarea id="event-note" name="note" rows="3" maxlength="180" placeholder="Tambahkan detail acara..."></textarea>
+			<p class="form-error" id="form-error" role="alert"></p>
+			<div class="dialog-actions"><button class="cancel-button" id="cancel-dialog" type="button">Batal</button><button class="save-button" type="submit">Simpan acara <span aria-hidden="true">→</span></button></div>
+		</form>
+	</dialog>
+
+	<script>
+		const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+		const weekdayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+		const categoryNames = { personal: 'Pribadi', national: 'Nasional', family: 'Keluarga', work: 'Pekerjaan' };
+		const storageKey = 'hari-calendar-events-2026';
+		const initialEvents = [
+			{ id: 'new-year', date: '2026-01-01', title: 'Tahun Baru Masehi', category: 'national', note: 'Awal tahun baru.' },
+			{ id: 'imlek', date: '2026-02-17', title: 'Tahun Baru Imlek', category: 'national', note: 'Perayaan Tahun Baru Imlek.' },
+			{ id: 'kartini', date: '2026-04-21', title: 'Hari Kartini', category: 'national', note: 'Memperingati perjuangan R.A. Kartini.' },
+			{ id: 'labor', date: '2026-05-01', title: 'Hari Buruh Internasional', category: 'national', note: 'Hari untuk menghargai kontribusi para pekerja.' },
+			{ id: 'pancasila', date: '2026-06-01', title: 'Hari Lahir Pancasila', category: 'national', note: 'Memperingati lahirnya Pancasila.' },
+			{ id: 'independence', date: '2026-08-17', title: 'Hari Kemerdekaan RI', category: 'national', note: 'Hari Kemerdekaan Republik Indonesia.' },
+			{ id: 'youth', date: '2026-10-28', title: 'Hari Sumpah Pemuda', category: 'national', note: 'Memperingati ikrar persatuan pemuda Indonesia.' },
+			{ id: 'heroes', date: '2026-11-10', title: 'Hari Pahlawan', category: 'national', note: 'Mengenang jasa para pahlawan.' },
+			{ id: 'christmas', date: '2026-12-25', title: 'Hari Raya Natal', category: 'national', note: 'Perayaan Natal.' }
+		];
+
+		let events;
+		try {
+			const savedEvents = localStorage.getItem(storageKey);
+			events = savedEvents === null ? [...initialEvents] : JSON.parse(savedEvents);
+			if (!Array.isArray(events)) events = [...initialEvents];
+		} catch {
+			events = [...initialEvents];
+		}
+
+		const currentDate = new Date();
+		const todayDate = currentDate.getFullYear() === 2026
+			? dateFromParts(2026, currentDate.getMonth(), currentDate.getDate())
+			: '2026-01-01';
+		let displayedMonth = currentDate.getFullYear() === 2026 ? currentDate.getMonth() : 0;
+		let selectedDate = todayDate;
+		const grid = document.querySelector('#calendar-grid');
+		const eventList = document.querySelector('#event-list');
+		const dialog = document.querySelector('#event-dialog');
+		const eventForm = document.querySelector('#event-form');
+
+		function dateFromParts(year, month, day) {
+			return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+		}
+
+		function formatLongDate(dateString) {
+			const [year, month, day] = dateString.split('-').map(Number);
+			return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(year, month - 1, day));
+		}
+
+		function saveEvents() {
+			try {
+				localStorage.setItem(storageKey, JSON.stringify(events));
+			} catch {
+				document.querySelector('#form-error').textContent = 'Penyimpanan browser tidak tersedia. Acara hanya tersimpan selama halaman terbuka.';
+			}
+		}
+
+		function renderCalendar() {
+			const firstDay = new Date(2026, displayedMonth, 1).getDay();
+			const offset = (firstDay + 6) % 7;
+			const daysInMonth = new Date(2026, displayedMonth + 1, 0).getDate();
+			document.querySelector('#month-title').innerHTML = `${monthNames[displayedMonth]} <span>2026</span>`;
+			grid.replaceChildren();
+
+			weekdayNames.forEach((weekday) => {
+				const heading = document.createElement('div');
+				heading.className = 'weekday';
+				heading.setAttribute('role', 'columnheader');
+				heading.textContent = weekday;
+				grid.append(heading);
+			});
+
+			for (let index = 0; index < offset; index += 1) {
+				const blank = document.createElement('div');
+				blank.className = 'day-cell empty';
+				blank.setAttribute('role', 'presentation');
+				grid.append(blank);
+			}
+
+			for (let day = 1; day <= daysInMonth; day += 1) {
+				const date = dateFromParts(2026, displayedMonth, day);
+				const dayEvents = events.filter((event) => event.date === date);
+				const button = document.createElement('button');
+				button.type = 'button';
+				button.className = 'day-cell';
+				button.setAttribute('role', 'gridcell');
+				button.setAttribute('aria-label', `${formatLongDate(date)}${dayEvents.length ? `, ${dayEvents.length} acara` : ''}`);
+				if (date === selectedDate) button.classList.add('selected');
+				if (dayEvents.length) button.classList.add('has-event');
+				if (displayedMonth === 9 && day === 28) button.classList.add('national-day');
+				button.innerHTML = `<span class="day-number">${day}</span>${dayEvents.length ? '<span class="event-indicator" aria-hidden="true"></span>' : ''}`;
+				button.addEventListener('click', () => {
+					selectedDate = date;
+					renderCalendar();
+					renderAgenda();
+				});
+				grid.append(button);
+			}
+		}
+
+		function renderAgenda() {
+			const dateEvents = events.filter((event) => event.date === selectedDate).sort((first, second) => (first.time || '').localeCompare(second.time || ''));
+			const formatted = formatLongDate(selectedDate);
+			const [weekday, ...dateParts] = formatted.split(', ');
+			document.querySelector('#agenda-title').innerHTML = `${weekday},<br>${dateParts.join(', ')}`;
+			document.querySelector('.agenda-year').textContent = `${formatted} 2026`;
+			document.querySelector('#event-count').textContent = `${dateEvents.length} acara`;
+			eventList.replaceChildren();
+
+			if (!dateEvents.length) {
+				const empty = document.createElement('div');
+				empty.className = 'empty-agenda';
+				empty.innerHTML = '<span class="empty-mark" aria-hidden="true">○</span><p>Hari ini masih kosong.</p><span>Waktunya merencanakan sesuatu.</span>';
+				eventList.append(empty);
+				return;
+			}
+
+			dateEvents.forEach((event) => {
+				const item = document.createElement('article');
+				item.className = `event-item category-${event.category || 'personal'}`;
+				const details = document.createElement('div');
+				details.className = 'event-details';
+				const time = document.createElement('span');
+				time.className = 'event-time';
+				time.textContent = event.time || 'Sepanjang hari';
+				const title = document.createElement('h3');
+				title.textContent = event.title;
+				const category = document.createElement('span');
+				category.className = 'event-category';
+				category.textContent = categoryNames[event.category] || 'Pribadi';
+				details.append(time, title, category);
+				if (event.note) {
+					const note = document.createElement('p');
+					note.className = 'event-note';
+					note.textContent = event.note;
+					details.append(note);
+				}
+				const remove = document.createElement('button');
+				remove.className = 'delete-event';
+				remove.type = 'button';
+				remove.setAttribute('aria-label', `Hapus acara ${event.title}`);
+				remove.title = 'Hapus acara';
+				remove.textContent = '×';
+				remove.addEventListener('click', () => {
+					events = events.filter((savedEvent) => savedEvent.id !== event.id);
+					saveEvents();
+					renderCalendar();
+					renderAgenda();
+				});
+				item.append(details, remove);
+				eventList.append(item);
+			});
+		}
+
+		function openEventDialog() {
+			document.querySelector('#event-date').value = selectedDate;
+			document.querySelector('#form-error').textContent = '';
+			dialog.showModal();
+			document.querySelector('#event-title').focus();
+		}
+
+		document.querySelector('#previous-month').addEventListener('click', () => {
+			displayedMonth = (displayedMonth + 11) % 12;
+			renderCalendar();
+		});
+		document.querySelector('#next-month').addEventListener('click', () => {
+			displayedMonth = (displayedMonth + 1) % 12;
+			renderCalendar();
+		});
+		document.querySelector('#today-button').addEventListener('click', () => {
+			selectedDate = todayDate;
+			displayedMonth = currentDate.getFullYear() === 2026 ? currentDate.getMonth() : 0;
+			renderCalendar();
+			renderAgenda();
+		});
+		document.querySelector('#open-event-form').addEventListener('click', openEventDialog);
+		document.querySelector('#open-event-form-secondary').addEventListener('click', openEventDialog);
+		document.querySelector('#close-dialog').addEventListener('click', () => dialog.close());
+		document.querySelector('#cancel-dialog').addEventListener('click', () => dialog.close());
+		eventForm.addEventListener('submit', (submitEvent) => {
+			submitEvent.preventDefault();
+			const formData = new FormData(eventForm);
+			const date = formData.get('date');
+			const title = formData.get('title').trim();
+			if (!title || !/^2026-\d{2}-\d{2}$/.test(date)) {
+				document.querySelector('#form-error').textContent = 'Isi nama acara dan pilih tanggal di tahun 2026.';
+				return;
+			}
+			const [year, month, day] = date.split('-').map(Number);
+			if (new Date(year, month - 1, day).getMonth() !== month - 1) {
+				document.querySelector('#form-error').textContent = 'Tanggal yang dipilih tidak valid.';
+				return;
+			}
+			events.push({
+				id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+				date,
+				title,
+				time: formData.get('time'),
+				category: formData.get('category'),
+				note: formData.get('note').trim()
+			});
+			saveEvents();
+			selectedDate = date;
+			displayedMonth = month - 1;
+			eventForm.reset();
+			dialog.close();
+			renderCalendar();
+			renderAgenda();
+		});
+
+		renderCalendar();
+		renderAgenda();
+	</script>
+</body>
+</html>
