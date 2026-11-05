@@ -1,5 +1,5 @@
 "# Calculator-Template" 
 
-might be useful, might be not lol
+might be useful, use it as add-on
 
 ## Enjoy
